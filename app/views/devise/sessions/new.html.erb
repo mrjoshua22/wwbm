@@ -1,0 +1,35 @@
+<h2 class="text-center"><%= t('.header') %></h2>
+
+<div class="container mb-3 d-flex justify-content-center">
+  <%= form_for(resource, as: resource_name, url: session_path(resource_name),
+    data: { turbo: false}) do |f| %>
+
+    <div class="input-group mb-4 mt-3">
+      <span class="input-group-text"><i class="bi bi-envelope-fill"></i></span>
+      <%= f.email_field :email, class: 'form-control',
+        placeholder: t('.email_placeholder'),
+        autofocus: true, autocomplete: "email" %>
+    </div>
+
+    <div class="input-group mb-4 mt-3">
+      <span class="input-group-text"><i class="bi bi-key-fill"></i></span>
+      <%= f.password_field :password, class: 'form-control',
+        placeholder: t('.password_placeholder'),
+        autocomplete: "current-password" %>
+    </div>
+
+    <% if devise_mapping.rememberable? %>
+      <div class="mb-4">
+        <%= f.check_box :remember_me %>
+        <%= f.label :remember_me %>
+      </div>
+    <% end %>
+
+    <div class="actions">
+      <%= f.submit t('.submit'), class: 'btn btn-primary' %> <%= t('or') %>
+      <%= link_to t('links.back'), :back, class: 'text-decoration-none' %>
+    </div>
+
+    <%= render 'devise/shared/links', resource: resource %>
+  <% end %>
+</div>

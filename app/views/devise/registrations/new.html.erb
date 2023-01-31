@@ -1,21 +1,41 @@
-<h2><%= t('.sign_up', :default => 'Sign up') %></h2>
+<h2 class="text-center"><%= t('.header') %></h2>
 
-<%= form_for(resource, :as => resource_name, :url => registration_path(resource_name)) do |f| %>
-  <%= devise_error_messages! %>
+<div class="container d-flex justify-content-center">
+  <%= form_for(resource, as: resource_name, url: registration_path(resource_name),
+    data: { turbo: false }) do |f| %>
 
-  <div><%= f.label :email %><br/>
-    <%= f.email_field :email %></div>
+    <%= render 'devise/shared/error_messages', resource: resource %>
 
-  <div><%= f.label :name %><br/>
-    <%= f.text_field :name %></div>
+    <div class="input-group my-4">
+      <span class="input-group-text"><i class="bi bi-envelope-fill"></i></span>
+      <%= f.email_field :email, class: 'form-control',
+        placeholder: t('.email_placeholder'),
+        autofocus: true, autocomplete: 'email' %>
+    </div>
 
-  <div><%= f.label :password %><br/>
-    <%= f.password_field :password %></div>
+    <div class="input-group">
+      <span class="input-group-text"><i class="bi bi-lock-fill"></i></span>
+      <%= f.password_field :password, class: 'form-control',
+        placeholder: t('.password_placeholder'),
+        autocomplete: 'new-password' %>
+    </div>
 
-  <div><%= f.label :password_confirmation %><br/>
-    <%= f.password_field :password_confirmation %></div>
+    <% if @minimum_password_length %>
+      <em>(<%= @minimum_password_length %> <%= t('.symbols_min') %>)</em>
+    <% end %>
 
-  <div><%= f.submit t('.sign_up', :default => 'Sign up') %></div>
-<% end %>
+    <div class="input-group mb-4 mt-3">
+      <span class="input-group-text"><i class="bi bi-lock-fill"></i></span>
+      <%= f.password_field :password_confirmation, class: 'form-control',
+        placeholder: t('.password_confirmation_placeholder'),
+        autocomplete: 'new-password' %>
+    </div>
 
-<%= render 'devise/shared/links' %>
+    <div class="actions mb-4">
+      <%= f.submit t('.submit'), class: 'btn btn-primary' %> <%= t('or') %>
+      <%= link_to t('links.back'), :back, class: 'text-decoration-none' %>
+    </div>
+
+    <%= render 'devise/shared/links', resource: resource %>
+  <% end %>
+</div>
