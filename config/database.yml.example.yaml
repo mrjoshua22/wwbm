@@ -1,0 +1,21 @@
+default: &default
+  adapter: postgresql
+  encoding: unicode
+  pool: 5
+  host: localhost
+  user: wwbm
+  password: <%= ENV['WWBM_DATABASE_PASSWORD'] %>
+
+development:
+  <<: *default
+  database: wwbm_development
+
+test:
+  <<: *default
+  database: wwbm_test
+
+production:
+  <<: *default
+  database: wwbm_production
+  username: wwbm
+  password: <%= ENV['WWBM_DATABASE_PASSWORD'] %>
