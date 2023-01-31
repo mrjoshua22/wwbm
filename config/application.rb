@@ -24,7 +24,11 @@ module Wwbm
     config.load_defaults 7.0
 
     # Configuration for the application, engines, and railties goes here.
-    #
+    config.i18n.default_locale = :ru
+    config.i18n.locale = :ru
+    config.i18n.fallbacks = [:en]
+
+    config.time_zone = 'Moscow'
     # These settings can be overridden in specific environments using the files
     # in config/environments, which are processed later.
     #

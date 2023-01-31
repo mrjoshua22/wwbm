@@ -1,0 +1,95 @@
+ru:
+  game_help:
+    friends:
+      - "Жора"
+      - "Борис Бурда"
+      - "Анатолий Вассерман"
+      - "Федор Двинятин"
+      - "Баба Таня"
+      - "Александр Друзь"
+      - "Сережа"
+    friend_call: "%{name} считает, что это вариант %{variant}"
+
+  controllers:
+    games:
+      not_your_game: "Это не ваша игра!"
+      game_created: "Игра началась в %{created_at}, время пошло"
+      game_not_created: "Не удалось создать игру :( Свяжитесь с админом"
+      help_used: "Вы использовали подсказку"
+      help_not_used: "Подсказка уже была использована!"
+      game_not_finished: "Вы еще не завершили игру"
+      game_finished: "Игра окончена, ваш выигрыш %{prize}. Заходите еще!"
+      game_closed: "Игра %{game_id} закончена и больше недоступна, начните новую!"
+      good_answer: "Правильный ответ, молодцом :)"
+      bad_answer: "Правильный ответ: %{answer}. Игра закончена, ваш приз %{prize}"
+
+# статусы игры
+  game_statuses:
+    fail: 'проигрыш'
+    timeout: 'время'
+    money: 'деньги'
+    won: 'победа'
+    in_progress: 'в процессе'
+
+  number:
+    currency:
+      format:
+        # Формат отображения валюты и обозначение самой валюты
+        unit: "₽"
+        precision: 0
+
+  devise:
+    registrations:
+      new:
+        header: 'Регистрация нового пользователя'
+        email_placeholder: 'Email'
+        password_placeholder: 'Пароль'
+        password_confirmation_placeholder: 'Подтверждение пароля'
+        symbols_min: 'символов минимум'
+        submit: 'Зарегистрироваться'
+      edit:
+        header: 'Сменить пароль и почту'
+        leave_blank: 'оставьте поле пустым если не хотите менять его'
+        email_confirmation: 'Ждем подтверждения почты:'
+        current_password: 'введите текущий пароль для подтвеждения изменений'
+        symbols_min: 'символов минимум'
+        submit: 'Сохранить'
+        cancel_account: 'Удалить профиль'
+        cancel_account_confirmation: 'Вы точно хотите удалить свой профиль?'
+    sessions:
+      new:
+        header: 'Вход'
+        email_placeholder: 'Email'
+        password_placeholder: 'Пароль'
+        submit: 'Войти'
+    shared:
+      links:
+        log_in: 'Войти'
+        sign_up: 'Зарегистрироваться'
+        forgot_password: 'Забыли пароль?'
+        no_confirmation_instructions: 'Не получили инструкций для подтверждения почты?'
+        no_unlock_instructions: 'Не получили инструкций для разблокировки?'
+        sign_in_with: "Войти с помощью %{omniauth}"
+    passwords:
+      new:
+        header: 'Забыли пароль?'
+        email_placeholder: 'Email'
+        submit: 'Отправить'
+      edit:
+        header: 'Изменить пароль'
+        password_placeholder: 'Новый пароль'
+        password_confirmation_placeholder: 'Подтверждение пароля'
+        symbols_min: 'символов минимум'
+        submit: 'Сохранить'
+
+  links:
+    back: 'вернуться'
+    change_password: 'Сменить пароль'
+    edit_profile: 'Редактировать профиль'
+    profile: 'Профиль'
+    log_in: 'Войти'
+    log_out: 'Выйти'
+    sign_up: 'Зарегистрироваться'
+    edit: 'Изменить'
+    main: 'На главную'
+
