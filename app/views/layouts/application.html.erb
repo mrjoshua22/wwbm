@@ -11,6 +11,47 @@
   </head>
 
   <body>
-    <%= yield %>
+    <div class="navbar navbar-default navbar-static-top">
+      <div class="container">
+        <%= link_to 'Billionaire', root_path, class: 'navbar-brand' %>
+        <% if user_signed_in? %>
+          <div class="navbar-form navbar-right">
+
+            <% if current_user.is_admin? %>
+              <%# Ссылка на админку %>
+              <%= link_to 'Админка', rails_admin_path, class: 'btn navbar-btn btn-danger btn-xs' %>
+              <%= link_to 'Залить новые вопросы', new_questions_path, class: 'btn navbar-btn btn-warning btn-xs' %>
+            <% end %>
+
+
+            <%= link_to content_tag(:span, "#{current_user.name} - #{number_to_currency current_user.balance}"),
+                        user_path(current_user),
+                        class: 'btn navbar-btn'
+            %>
+            <%= link_to 'Новая игра', games_path, method: :post, class: 'btn navbar-btn btn-success btn-xs' %>
+            <%= link_to 'Выйти', destroy_user_session_path, method: :delete, class: 'btn btn-info btn-xs navbar-btn' %>
+          </div>
+        <% else %>
+          <div class="navbar-form navbar-right">
+            <%= link_to 'Войти', new_user_session_path, class: 'btn btn-primary' %>
+            <%= link_to 'Зарегистрироваться', new_user_registration_path, class: 'btn btn-success' %>
+          </div>
+        <% end %>
+      </div>
+    </div>
+
+    <div class="container">
+      <div class="row">
+        <div class="col-lg-12">
+          <%= yield %>
+        </div>
+      </div>
+    </div>
+
+    <footer class="buffer-top-lg text-right">
+      <div class="footer navbar-fixed-bottom text-center">
+        <p>&copy; <%= link_to 'Хороший программист', 'http://bit.ly/1U2DVdI' %> 2016 &mdash; &infin;</p>
+      </div>
+    </footer>
   </body>
 </html>
