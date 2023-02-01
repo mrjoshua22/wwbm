@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <title>Wwbm</title>
+    <title>WWBM</title>
     <meta name="viewport" content="width=device-width,initial-scale=1">
     <%= csrf_meta_tags %>
     <%= csp_meta_tag %>
@@ -10,10 +10,11 @@
     <%= javascript_include_tag "application", "data-turbo-track": "reload", defer: true %>
   </head>
 
-  <body>
-    <div class="navbar navbar-default navbar-static-top">
+  <body class="d-flex flex-column min-vh-100">
+    <nav class="navbar navbar-expand-lg buffer-bottom">
       <div class="container">
-        <%= link_to 'Billionaire', root_path, class: 'navbar-brand' %>
+        <%= link_to 'Кто хочет стать миллионером?', root_path, class: 'navbar-brand',
+          class: 'text-white text-decoration-none fw-bold' %>
         <% if user_signed_in? %>
           <div class="navbar-form navbar-right">
 
@@ -26,11 +27,11 @@
 
             <%= link_to content_tag(:span, "#{current_user.name} - #{number_to_currency current_user.balance}"),
                         user_path(current_user),
-                        class: 'btn navbar-btn'
+                        class: 'btn navbar-btn text-white'
             %>
-            <%= button_to 'Новая игра', games_path, method: :post,
+            <%= link_to 'Новая игра', games_path, data: { turbo_method: :post },
               class: 'btn navbar-btn btn-success btn-xs' %>
-            <%= button_to 'Выйти', destroy_user_session_path, method: :delete,
+            <%= link_to 'Выйти', destroy_user_session_path, data: { turbo_method: :delete },
               class: 'btn btn-info btn-xs navbar-btn' %>
           </div>
         <% else %>
@@ -41,7 +42,23 @@
           </div>
         <% end %>
       </div>
-    </div>
+    </nav>
+
+    <% if flash[:notice].present? %>
+      <div data-controller="flash" class="alert alert-success alert-dismissible mx-3 fade show"
+        data-timeout="3000" role="alert">
+        <%= flash[:notice] %>
+        <button data-action="flash#dismiss" type="button" class="btn-close"
+          data-bs-dismiss="alert" aria-label="Close">
+      </div>
+    <% elsif flash[:alert].present? %>
+      <div data-controller="flash" class="alert alert-danger alert-dismissible mx-3 fade show"
+        data-timeout="3000" role="alert">
+        <%= flash[:alert] %>
+        <button data-action="flash#dismiss" type="button" class="btn-close"
+          data-bs-dismiss="alert" aria-label="Close">
+      </div>
+    <% end %>
 
     <div class="container">
       <div class="row">
@@ -51,11 +68,12 @@
       </div>
     </div>
 
-    <footer class="buffer-top-lg text-right">
-      <div class="footer navbar-fixed-bottom text-center">
-        <p>
-          &copy; <%= link_to 'Хороший программист', 'http://bit.ly/1U2DVdI' %> 2016 &mdash; &infin;
-        </p>
+    <footer class="text-center text-white mt-auto">
+      <div class="text-center p-3">
+        &copy
+        <%= link_to t('app.company'), 'https://goodprogrammer.ru',
+          class: 'text-white' %>
+        2023
       </div>
     </footer>
   </body>

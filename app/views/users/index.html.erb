@@ -1,20 +1,20 @@
-<h1>Рейтинг</h1>
+<h2>Рейтинг</h2>
 
 <div class="row">
   <div class="col-md-8 col-md-offset-2">
     <table class="users-table table">
       <thead>
         <tr>
-          <th class="text-center">Место</th>
-          <th class="text-center">Имя</th>
-          <th class="text-center">Выигрыш</th>
-          <th class="text-center">Игр</th>
-          <th class="text-center">За игру</th>
+          <th class="text-center text-white">Место</th>
+          <th class="text-center text-white">Имя</th>
+          <th class="text-center text-white">Выигрыш</th>
+          <th class="text-center text-white">Игр</th>
+          <th class="text-center text-white">За игру</th>
         </tr>
       </thead>
 
       <% @users.each_with_index do |user, index| %>
-        <tr class="text-center">
+        <tr class="text-center text-white">
           <td><%= index + 1 %></td>
           <td><%= link_to user.name, user_path(user) %></td>
           <td><%= number_to_currency user.balance %></td>

@@ -9,11 +9,11 @@
   <% game_question.variants.each do |letter, variant| %>
     <% if !help.key?(:fifty_fifty) || help[:fifty_fifty].include?(letter) %>
       <div class="col-md-6 buffer-top">
-        <%= button_to content_tag(:span, letter.upcase, class: 'variant') + ": #{variant}",
+        <%= link_to content_tag(:span, letter.upcase, class: 'variant') + ": #{variant}",
                     answer_game_path(game, letter: letter),
-                    method: :put,
+                    data: { turbo_method: :put },
                     remote: true,
-                    class: 'btn btn-block btn-default btn-variant'
+                    class: 'w-100 btn btn-block btn-default btn-variant'
         %>
       </div>
     <% end %>
