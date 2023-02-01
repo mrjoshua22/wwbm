@@ -1,8 +1,10 @@
 FactoryBot.define do
   factory :user do
-    name { "MyString" }
-    email { "MyString" }
+    name { "Жора_#{rand(999)}" }
+    sequence(:email) { |n| "someguy_#{n}@example.com" }
     is_admin { false }
-    balance { 1 }
+    balance { 0 }
+
+    after(:build) { |u| u.password_confirmation = u.password = '123456' }
   end
 end

@@ -1,9 +1,19 @@
 FactoryBot.define do
   factory :game do
-    user { nil }
-    finished_ad { "2023-01-31 20:26:59" }
-    current_level { 1 }
+    association :user
+
+    finished_at { nil }
+    current_level { 0 }
     is_failed { false }
-    prize { 1 }
+    prize { 0 }
+
+    factory :game_with_questions do
+      after(:build) { |game|
+        15.times do |i|
+          q = create(:question, level: i)
+          create(:game_question, game: game, question: q)
+        end
+      }
+    end
   end
 end

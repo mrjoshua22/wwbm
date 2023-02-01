@@ -1,10 +1,11 @@
 FactoryBot.define do
   factory :game_question do
-    game { nil }
-    question { nil }
-    a { 1 }
-    b { 1 }
-    c { 1 }
+    association :game
+    association :question
+
+    a { 4 }
+    b { 3 }
+    c { 2 }
     d { 1 }
   end
 end
