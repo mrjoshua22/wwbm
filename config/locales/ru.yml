@@ -81,6 +81,9 @@ ru:
         password_confirmation_placeholder: 'Подтверждение пароля'
         symbols_min: 'символов минимум'
         submit: 'Сохранить'
+  app:
+    name: 'КХСМ'
+    company: 'Хороший программист'
 
   links:
     back: 'вернуться'
@@ -92,4 +95,5 @@ ru:
     sign_up: 'Зарегистрироваться'
     edit: 'Изменить'
     main: 'На главную'
+  or: 'или'
 
