@@ -108,6 +108,21 @@ RSpec.describe Game, type: :model do
     end
   end
 
+  describe '.current_game_question' do
+    it 'returns correct object type' do
+      expect(game_w_questions.current_game_question).to be_a(GameQuestion)
+    end
+
+    it 'returns question with correct level' do
+      expect(game_w_questions.current_game_question.question.level).
+        to eq(game_w_questions.current_level)
+    end
+  end
+
+  describe '.previous_level' do
+    it { expect(game_w_questions.previous_level).to eq(-1) }
+  end
+
   context 'when answer is correct' do
     it 'goes to next question' do
       level = game_w_questions.current_level
