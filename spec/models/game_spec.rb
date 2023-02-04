@@ -106,6 +106,74 @@ RSpec.describe Game, type: :model do
     it { expect(game.previous_level).to eq(-1) }
   end
 
+  describe '.answer_current_question!' do
+    let(:correct_answer) { game.current_game_question.correct_answer_key }
+    let(:answer_question) { game.answer_current_question!(correct_answer) }
+
+    context 'when time is out' do
+      before(:example) do
+        game.created_at = 1.hour.ago
+      end
+
+      it { expect(answer_question).to be_falsey }
+      it { expect { answer_question }.to_not change { game.current_level } }
+    end
+
+    context 'when game is finished' do
+      before(:example) do
+        game.finished_at = 1.hour.ago
+      end
+
+      it { expect(answer_question).to be_falsey }
+      it { expect { answer_question }.to_not change { game.current_level } }
+    end
+
+    context 'when answer is correct' do
+      context 'when last question' do
+        before(:example) do
+          game.current_level = 14
+          answer_question
+          user.reload.balance
+        end
+
+        it { expect(game.current_level).to eq(15) }
+        it { expect(game.finished?).to be_truthy }
+        it { expect(game.is_failed).to be_falsey }
+        it { expect(user.balance).to eq(1000000) }
+      end
+
+      context 'when not last question' do
+        before(:example) do
+          game.current_level = 5
+          answer_question
+        end
+
+        it { expect(game.current_level).to eq(6) }
+        it { expect(game.finished?).to be_falsey }
+        it { expect(game.is_failed).to be_falsey }
+      end
+    end
+
+    context 'when answer is wrong' do
+      context 'finishes game' do
+        it 'not change game current level' do
+        expect { game.answer_current_question!('a')}.
+          to_not change { game.current_level }
+        end
+
+        it  'finishes the game' do
+          game.answer_current_question!('a')
+          expect(game.finished?).to be_truthy
+        end
+
+        it 'finishes the game as failed' do
+          game.answer_current_question!('a')
+          expect(game.is_failed).to be_truthy
+        end
+      end
+    end
+  end
+
   context 'when answer is correct' do
     it 'goes to next question' do
       level = game.current_level
