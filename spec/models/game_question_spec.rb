@@ -4,15 +4,11 @@ RSpec.describe GameQuestion, type: :model do
   let(:game_question) { create(:game_question, a: 2, b: 1, c: 4, d: 3) }
 
   describe '.text' do
-    it 'returns correct text value' do
-      expect(game_question.text).to eq(game_question.question.text)
-    end
+    it { expect(game_question.text).to eq(game_question.question.text) }
   end
 
   describe '.level' do
-    it 'returns level value' do
-      expect(game_question.level).to eq(game_question.question.level)
-    end
+    it { expect(game_question.level).to eq(game_question.question.level) }
   end
 
   describe '.variants' do
@@ -27,9 +23,7 @@ RSpec.describe GameQuestion, type: :model do
   end
 
   describe '.answer_correct?' do
-    it 'checks if answer is correct' do
-      expect(game_question.answer_correct?('b')).to be_truthy
-    end
+    it { expect(game_question.answer_correct?('b')).to be_truthy }
   end
 
   describe '.correct_answer_key' do
