@@ -3,6 +3,18 @@ require 'rails_helper'
 RSpec.describe GameQuestion, type: :model do
   let(:game_question) { create(:game_question, a: 2, b: 1, c: 4, d: 3) }
 
+  describe '.text' do
+    it 'returns correct text value' do
+      expect(game_question.text).to eq(game_question.question.text)
+    end
+  end
+
+  describe '.level' do
+    it 'returns level value' do
+      expect(game_question.level).to eq(game_question.question.level)
+    end
+  end
+
   describe '.variants' do
     it 'returns correct variants' do
       expect(game_question.variants).to eq({
