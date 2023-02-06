@@ -192,5 +192,43 @@ RSpec.describe "Games", type: :request do
         expect(user.balance).to eq(game.prize)
       end
     end
+
+    it 'audience help' do
+      expect(game_w_questions.current_game_question.help_hash[:audience_help]).
+        not_to be
+      expect(game_w_questions.audience_help_used).to be_falsey
+
+      put help_game_path(game_w_questions),
+        params: { help_type: :audience_help }
+
+      game = controller.view_assigns['game']
+
+      expect(game.finished?).to be_falsey
+      expect(game.audience_help_used).to be_truthy
+      expect(game.current_game_question.help_hash[:audience_help]).to be
+      expect(game.current_game_question.help_hash[:audience_help].keys).
+        to contain_exactly('a', 'b', 'c', 'd')
+      expect(response).to redirect_to(game_path(game_w_questions))
+    end
+
+    it 'fifty fifty' do
+      expect(game_w_questions.current_game_question.help_hash[:fifty_fifty]).
+        not_to be
+      expect(game_w_questions.fifty_fifty_used).to be_falsey
+
+      put help_game_path(game_w_questions),
+        params: { help_type: :fifty_fifty }
+
+      game = controller.view_assigns['game']
+
+      expect(game.finished?).to be_falsey
+      expect(game.fifty_fifty_used).to be_truthy
+      expect(game.current_game_question.help_hash[:fifty_fifty]).to be
+      expect(game.current_game_question.help_hash[:fifty_fifty].size).
+        to eq(2)
+      expect(game.current_game_question.help_hash[:fifty_fifty]).
+       to include(game.current_game_question.correct_answer_key)
+      expect(response).to redirect_to(game_path(game_w_questions))
+    end
   end
 end

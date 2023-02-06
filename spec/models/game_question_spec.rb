@@ -29,4 +29,54 @@ RSpec.describe GameQuestion, type: :model do
   describe '.correct_answer_key' do
     it { expect(game_question.correct_answer_key).to eq('b') }
   end
+
+  context 'user helpers' do
+    it 'help hash' do
+      expect(game_question.help_hash).to be_empty
+
+      game_question.help_hash[:audience_help] = 'audience help'
+      game_question.help_hash[:fifty_fifty] = 'fifty fifty'
+      game_question.help_hash[:friend_call] = 'friend call'
+
+      expect(game_question.save).to be_truthy
+
+      saved_question = GameQuestion.find(game_question.id)
+
+      expect(saved_question.help_hash.size).to eq(3)
+      expect(saved_question.help_hash[:audience_help]).to eq('audience help')
+      expect(saved_question.help_hash[:fifty_fifty]).to eq('fifty fifty')
+      expect(saved_question.help_hash[:friend_call]).to eq('friend call')
+    end
+
+    it 'correct audience help' do
+      expect(game_question.help_hash).not_to include(:audience_help)
+
+      game_question.add_audience_help
+
+      expect(game_question.help_hash).to include(:audience_help)
+      expect(game_question.help_hash[:audience_help].keys).
+        to contain_exactly('a', 'b', 'c', 'd')
+    end
+
+    it 'correct fifty fifty help' do
+      expect(game_question.help_hash).not_to include(:fifty_fifty)
+
+      game_question.add_fifty_fifty
+
+      expect(game_question.help_hash).to include(:fifty_fifty)
+      expect(game_question.help_hash[:fifty_fifty].size).to eq(2)
+      expect(game_question.help_hash[:fifty_fifty]).to include('b')
+    end
+
+    it 'correct friend call help' do
+      expect(game_question.help_hash).not_to include(:friend_call)
+
+      game_question.add_friend_call
+
+      expect(game_question.help_hash).to include(:friend_call)
+      expect(game_question.help_hash[:friend_call]).to be_a(String)
+      expect(game_question.variants.keys).
+        to include(game_question.help_hash[:friend_call].split.last.downcase)
+    end
+  end
 end
