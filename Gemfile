@@ -13,6 +13,7 @@ gem "puma", "~> 5.0"
 gem "rails", "~> 7.0.4"
 gem "rails_admin", "~> 3.0"
 gem "rails-i18n", "~> 7.0.0"
+gem "sassc-rails"
 gem "sprockets-rails"
 gem "stimulus-rails"
 gem "turbo-rails"
@@ -31,7 +32,7 @@ end
 
 group :test do
   gem "capybara"
+  gem "launchy"
   gem "selenium-webdriver"
   gem "webdrivers"
 end
-gem "sassc-rails"
