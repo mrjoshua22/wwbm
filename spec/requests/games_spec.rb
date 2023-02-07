@@ -19,7 +19,7 @@ RSpec.describe "Games", type: :request do
     end
 
     describe '#show' do
-      before(:example) do
+      before do
         get game_path(game_w_questions)
       end
 
@@ -29,7 +29,7 @@ RSpec.describe "Games", type: :request do
     end
 
     describe '#answer' do
-      before(:example) do
+      before do
         put answer_game_path(game_w_questions), params: {
           letter: game_w_questions.current_game_question.correct_answer_key
         }
@@ -47,7 +47,7 @@ RSpec.describe "Games", type: :request do
     end
 
     describe '#take_money' do
-      before(:example) do
+      before do
         put take_money_game_path(game_w_questions)
       end
 
@@ -62,7 +62,7 @@ RSpec.describe "Games", type: :request do
     end
 
     describe '#help' do
-      before(:example) do
+      before do
         put help_game_path(game_w_questions)
       end
 
@@ -83,7 +83,7 @@ RSpec.describe "Games", type: :request do
     let(:admin) { create(:user, is_admin: true) }
     let(:another_game) { create(:game_with_questions) }
 
-    before(:example) do
+    before do
       sign_in user
     end
 
@@ -124,7 +124,7 @@ RSpec.describe "Games", type: :request do
       context 'when users own game' do
         let(:game) { controller.view_assigns['game'] }
 
-        before(:example) do
+        before do
           get game_path(game_w_questions)
         end
 
@@ -134,7 +134,7 @@ RSpec.describe "Games", type: :request do
       end
 
       context 'when other users game' do
-        before(:example) do
+        before do
           get game_path(another_game)
         end
 
@@ -148,7 +148,7 @@ RSpec.describe "Games", type: :request do
       context 'when answer is correct' do
         let(:game) { game = controller.view_assigns['game'] }
 
-        before(:example) do
+        before do
           put answer_game_path(game_w_questions), params: {
             letter: game_w_questions.current_game_question.correct_answer_key
           }
@@ -163,7 +163,7 @@ RSpec.describe "Games", type: :request do
       context 'when answer is incorrect' do
         let(:game) { game = controller.view_assigns['game'] }
 
-        before(:example) do
+        before do
           put answer_game_path(game_w_questions), params: { letter: 'a' }
         end
 
@@ -177,7 +177,7 @@ RSpec.describe "Games", type: :request do
     describe '#take_money' do
       let(:game) { game = controller.view_assigns['game'] }
 
-      before(:example) do
+      before do
         game_w_questions.update(current_level: 4)
         put take_money_game_path(game_w_questions)
       end

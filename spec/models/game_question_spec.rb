@@ -30,53 +30,78 @@ RSpec.describe GameQuestion, type: :model do
     it { expect(game_question.correct_answer_key).to eq('b') }
   end
 
-  context 'user helpers' do
-    it 'help hash' do
-      expect(game_question.help_hash).to be_empty
-
-      game_question.help_hash[:audience_help] = 'audience help'
-      game_question.help_hash[:fifty_fifty] = 'fifty fifty'
-      game_question.help_hash[:friend_call] = 'friend call'
-
-      expect(game_question.save).to be_truthy
-
-      saved_question = GameQuestion.find(game_question.id)
-
-      expect(saved_question.help_hash.size).to eq(3)
-      expect(saved_question.help_hash[:audience_help]).to eq('audience help')
-      expect(saved_question.help_hash[:fifty_fifty]).to eq('fifty fifty')
-      expect(saved_question.help_hash[:friend_call]).to eq('friend call')
+  context 'when there are user help' do
+    context 'when help not added' do
+      it { expect(game_question.help_hash).to be_empty }
     end
 
-    it 'correct audience help' do
-      expect(game_question.help_hash).not_to include(:audience_help)
+    context 'when help added' do
+      before do
+        game_question.help_hash[:audience_help] = 'audience help'
+        game_question.help_hash[:fifty_fifty] = 'fifty fifty'
+        game_question.help_hash[:friend_call] = 'friend call'
+      end
 
-      game_question.add_audience_help
+      it { expect(game_question.save).to be_truthy }
+      it { expect(game_question.help_hash.size).to eq(3) }
+      it { expect(game_question.help_hash[:audience_help]).to eq('audience help') }
+      it { expect(game_question.help_hash[:fifty_fifty]).to eq('fifty fifty') }
+      it { expect(game_question.help_hash[:friend_call]).to eq('friend call') }
+    end
+  end
 
-      expect(game_question.help_hash).to include(:audience_help)
-      expect(game_question.help_hash[:audience_help].keys).
-        to contain_exactly('a', 'b', 'c', 'd')
+  context 'when correct audience help' do
+    context 'when help not added' do
+      it { expect(game_question.help_hash).not_to include(:audience_help) }
     end
 
-    it 'correct fifty fifty help' do
-      expect(game_question.help_hash).not_to include(:fifty_fifty)
+    context 'when help added' do
+      before do
+        game_question.add_audience_help
+      end
 
-      game_question.add_fifty_fifty
+      it { expect(game_question.help_hash).to include(:audience_help) }
 
-      expect(game_question.help_hash).to include(:fifty_fifty)
-      expect(game_question.help_hash[:fifty_fifty].size).to eq(2)
-      expect(game_question.help_hash[:fifty_fifty]).to include('b')
+      it 'contains all answer keys' do
+        expect(game_question.help_hash[:audience_help].keys).
+          to contain_exactly('a', 'b', 'c', 'd')
+      end
+    end
+  end
+
+  context 'correct fifty fifty help' do
+    context ' when help not added' do
+      it { expect(game_question.help_hash).not_to include(:fifty_fifty) }
     end
 
-    it 'correct friend call help' do
-      expect(game_question.help_hash).not_to include(:friend_call)
+    context 'when help added' do
+      before do
+        game_question.add_fifty_fifty
+      end
 
-      game_question.add_friend_call
+      it { expect(game_question.help_hash).to include(:fifty_fifty) }
+      it { expect(game_question.help_hash[:fifty_fifty].size).to eq(2) }
+      it { expect(game_question.help_hash[:fifty_fifty]).to include('b') }
+    end
+  end
 
-      expect(game_question.help_hash).to include(:friend_call)
-      expect(game_question.help_hash[:friend_call]).to be_a(String)
-      expect(game_question.variants.keys).
-        to include(game_question.help_hash[:friend_call].split.last.downcase)
+  context 'correct friend call help' do
+    context 'when help not added' do
+      it { expect(game_question.help_hash).not_to include(:friend_call) }
+    end
+
+    context 'when help added' do
+      before do
+        game_question.add_friend_call
+      end
+
+      it { expect(game_question.help_hash).to include(:friend_call) }
+      it { expect(game_question.help_hash[:friend_call]).to be_a(String) }
+
+      it 'friend call contains answer key' do
+        expect(game_question.variants.keys).
+          to include(game_question.help_hash[:friend_call].split.last.downcase)
+      end
     end
   end
 end

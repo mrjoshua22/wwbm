@@ -27,7 +27,7 @@ RSpec.feature 'User views another user profile', type: :feature do
     )
   end
 
-  before(:example) do
+  before do
     login_as user
   end
 

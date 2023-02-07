@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-RSpec.feature 'USER creates game', type: :feature do
+RSpec.feature 'User creates game', type: :feature do
   let(:user) { create(:user) }
 
   let!(:questions) do
@@ -17,12 +17,12 @@ RSpec.feature 'USER creates game', type: :feature do
     end
   end
 
-  before(:example) do
+  before do
     login_as user
   end
 
   scenario 'success' do
-    visit '/'
+    visit root_path
 
     click_link 'Новая игра'
 

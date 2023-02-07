@@ -5,22 +5,15 @@ RSpec.describe Game, type: :model do
   let(:game) { create(:game_with_questions, user: user) }
 
   describe '#create_game_for_user!' do
-    it 'creates new correct game' do
-      generate_questions(60)
+    let!(:questions) { generate_questions(15) }
+    let(:new_game) { Game.create_game_for_user!(user) }
 
-      game = nil
-
-      expect {
-        game = Game.create_game_for_user!(user)
-      }.to change(Game, :count).by(1).and(
-        change(GameQuestion, :count).by(15)
-      )
-
-      expect(game.user).to eq(user)
-      expect(game.status).to eq(:in_progress)
-      expect(game.game_questions.size).to eq(15)
-      expect(game.game_questions.map(&:level)).to eq (0..14).to_a
-    end
+    it { expect { new_game }.to change(Game, :count).by(1) }
+    it { expect { new_game }.to change(GameQuestion, :count).by(15) }
+    it { expect(new_game.user).to eq(user) }
+    it { expect(new_game.status).to eq(:in_progress) }
+    it { expect(new_game.game_questions.size).to eq(15) }
+    it { expect(new_game.game_questions.map(&:level)).to eq((0..14).to_a) }
   end
 
   describe '.take_money!' do
@@ -33,7 +26,7 @@ RSpec.describe Game, type: :model do
     end
 
     context 'when game is finished' do
-      before(:example) do
+      before do
         game.finished_at = 1.hour.ago
         game.prize = 1000
       end
@@ -43,7 +36,7 @@ RSpec.describe Game, type: :model do
     end
 
     context 'when game in progress' do
-      before(:example) do
+      before do
         game.current_level = 4
         game.take_money!
         user.reload.balance
@@ -111,7 +104,7 @@ RSpec.describe Game, type: :model do
     let(:answer_question) { game.answer_current_question!(correct_answer) }
 
     context 'when time is out' do
-      before(:example) do
+      before do
         game.created_at = 1.hour.ago
       end
 
@@ -120,7 +113,7 @@ RSpec.describe Game, type: :model do
     end
 
     context 'when game is finished' do
-      before(:example) do
+      before do
         game.finished_at = 1.hour.ago
       end
 
@@ -130,7 +123,7 @@ RSpec.describe Game, type: :model do
 
     context 'when answer is correct' do
       context 'when last question' do
-        before(:example) do
+        before do
           game.current_level = 14
           answer_question
           user.reload.balance
@@ -143,7 +136,7 @@ RSpec.describe Game, type: :model do
       end
 
       context 'when not last question' do
-        before(:example) do
+        before do
           game.current_level = 5
           answer_question
         end
@@ -171,23 +164,6 @@ RSpec.describe Game, type: :model do
           expect(game.is_failed).to be_truthy
         end
       end
-    end
-  end
-
-  context 'when answer is correct' do
-    it 'goes to next question' do
-      level = game.current_level
-      current_question = game.current_game_question
-
-      expect(game.status).to eq(:in_progress)
-
-      game.answer_current_question!(current_question.correct_answer_key)
-
-      expect(game.current_level).to eq(level + 1)
-      expect(game.previous_game_question).to eq(current_question)
-      expect(game.current_game_question).not_to eq(current_question)
-      expect(game.status).to eq(:in_progress)
-      expect(game.finished?).to be_falsey
     end
   end
 end
