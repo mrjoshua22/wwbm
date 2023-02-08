@@ -4,7 +4,7 @@ RSpec.describe Game, type: :model do
   let(:user) { create(:user) }
   let(:game) { create(:game_with_questions, user: user) }
 
-  describe '#create_game_for_user!' do
+  describe '.create_game_for_user!' do
     let!(:questions) { generate_questions(15) }
     let(:new_game) { Game.create_game_for_user!(user) }
 
@@ -16,7 +16,7 @@ RSpec.describe Game, type: :model do
     it { expect(new_game.game_questions.map(&:level)).to eq((0..14).to_a) }
   end
 
-  describe '.take_money!' do
+  describe '#take_money!' do
     context 'when game is timed out' do
       it 'changes is_failed attribute and exits from method' do
         game.created_at = 1.hour.ago
@@ -50,7 +50,7 @@ RSpec.describe Game, type: :model do
     end
   end
 
-  describe '.status' do
+  describe '#status' do
     it 'returns in progress' do
       expect(game.status).to eq(:in_progress)
     end
@@ -84,38 +84,43 @@ RSpec.describe Game, type: :model do
     end
   end
 
-  describe '.current_game_question' do
+  describe '#current_game_question' do
     it 'returns correct object type' do
       expect(game.current_game_question).to be_a(GameQuestion)
     end
 
-    it 'returns question with correct level' do
-      expect(game.current_game_question.question.level).
-        to eq(game.current_level)
+    it 'returns correct question after create' do
+      expect(game.current_game_question).
+        to eq(game.game_questions.first)
+    end
+
+    it 'returns coorect question after answer' do
+      game.answer_current_question!(
+        game.current_game_question.correct_answer_key
+      )
+
+      expect(game.current_game_question).
+        to eq(game.game_questions.second)
     end
   end
 
-  describe '.previous_level' do
+  describe '#previous_level' do
     it { expect(game.previous_level).to eq(-1) }
   end
 
-  describe '.answer_current_question!' do
+  describe '#answer_current_question!' do
     let(:correct_answer) { game.current_game_question.correct_answer_key }
     let(:answer_question) { game.answer_current_question!(correct_answer) }
 
     context 'when time is out' do
-      before do
-        game.created_at = 1.hour.ago
-      end
+      before { game.created_at = 1.hour.ago }
 
       it { expect(answer_question).to be_falsey }
       it { expect { answer_question }.to_not change { game.current_level } }
     end
 
     context 'when game is finished' do
-      before do
-        game.finished_at = 1.hour.ago
-      end
+      before { game.finished_at = 1.hour.ago }
 
       it { expect(answer_question).to be_falsey }
       it { expect { answer_question }.to_not change { game.current_level } }
@@ -153,7 +158,7 @@ RSpec.describe Game, type: :model do
           to_not change { game.current_level }
       end
 
-      it  'finishes the game' do
+      it 'finishes the game' do
         game.answer_current_question!('a')
         expect(game.finished?).to be_truthy
       end
