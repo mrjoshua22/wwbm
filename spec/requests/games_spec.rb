@@ -6,11 +6,9 @@ RSpec.describe "Games", type: :request do
   let(:user) { create(:user) }
   let(:game_w_questions) { create(:game_with_questions, user: user) }
 
-  context 'when unregistered user' do
-    describe '#create' do
-      before(:context) do
-        post games_path
-      end
+  describe '#create' do
+    context 'when unregistered user' do
+      before(:context) { post games_path }
 
       it { expect { post games_path }.not_to change(Game,:count) }
       it { expect(response.status).not_to eq(200) }
@@ -18,84 +16,15 @@ RSpec.describe "Games", type: :request do
       it { expect(flash[:alert]).to be_truthy }
     end
 
-    describe '#show' do
-      before do
-        get game_path(game_w_questions)
-      end
+    context 'when registered user' do
+      before { sign_in user }
 
-      it { expect(response.status).not_to eq(200) }
-      it { expect(response).to redirect_to(new_user_session_path) }
-      it { expect(flash[:alert]).to be_truthy }
-    end
-
-    describe '#answer' do
-      before do
-        put answer_game_path(game_w_questions), params: {
-          letter: game_w_questions.current_game_question.correct_answer_key
-        }
-      end
-
-      it 'does not change game level' do
-        expect { put answer_game_path(game_w_questions), params: {
-          letter: game_w_questions.current_game_question.correct_answer_key
-          }}.not_to change { game_w_questions.current_level }
-      end
-
-      it { expect(response.status).not_to eq(200) }
-      it { expect(response).to redirect_to(new_user_session_path) }
-      it { expect(flash[:alert]).to be_truthy }
-    end
-
-    describe '#take_money' do
-      before do
-        put take_money_game_path(game_w_questions)
-      end
-
-      it 'does not finish game' do
-        expect { put take_money_game_path(game_w_questions) }.
-          not_to change { game_w_questions.finished_at }
-      end
-
-      it { expect(response.status).not_to eq(200) }
-      it { expect(response).to redirect_to(new_user_session_path) }
-      it { expect(flash[:alert]).to be_truthy }
-    end
-
-    describe '#help' do
-      before do
-        put help_game_path(game_w_questions)
-      end
-
-      it 'does not change help status' do
-        expect { put help_game_path(game_w_questions) }.
-          to not_change { game_w_questions.fifty_fifty_used }.
-          and not_change { game_w_questions.audience_help_used }.
-          and not_change { game_w_questions.friend_call_used }
-      end
-
-      it { expect(response.status).not_to eq(200) }
-      it { expect(response).to redirect_to(new_user_session_path) }
-      it { expect(flash[:alert]).to be_truthy }
-    end
-  end
-
-  context 'when registered user' do
-    let(:admin) { create(:user, is_admin: true) }
-    let(:another_game) { create(:game_with_questions) }
-
-    before do
-      sign_in user
-    end
-
-    describe '#create' do
-      context 'user has no unfinished game' do
+      context 'when user has no unfinished game' do
         context 'when creates game' do
           let!(:questions) { generate_questions(15) }
           let(:game) { controller.view_assigns['game'] }
 
-          before do
-            post games_path
-          end
+          before { post games_path }
 
           it { expect(game.finished?).to be_falsey }
           it { expect(game.user).to eq(user) }
@@ -104,7 +33,7 @@ RSpec.describe "Games", type: :request do
         end
       end
 
-      context 'user has unfinished game' do
+      context 'when user has unfinished game' do
         context 'when forbids to create game' do
           let!(:questions) { generate_questions(15) }
           let(:game) { game = controller.view_assigns['game'] }
@@ -122,14 +51,24 @@ RSpec.describe "Games", type: :request do
         end
       end
     end
+  end
 
-    describe '#show' do
+  describe '#show' do
+    context 'when unregistered user' do
+      before { get game_path(game_w_questions) }
+
+      it { expect(response.status).not_to eq(200) }
+      it { expect(response).to redirect_to(new_user_session_path) }
+      it { expect(flash[:alert]).to be_truthy }
+    end
+
+    context 'when registered user' do
+      before { sign_in user }
+
       context 'when users own game' do
         let(:game) { controller.view_assigns['game'] }
 
-        before do
-          get game_path(game_w_questions)
-        end
+        before { get game_path(game_w_questions) }
 
         it { expect(game.finished?).to be_falsey }
         it { expect(game.user).to eq(user) }
@@ -137,17 +76,39 @@ RSpec.describe "Games", type: :request do
       end
 
       context 'when other users game' do
-        before do
-          get game_path(another_game)
-        end
+        let(:another_game) { create(:game_with_questions) }
+
+        before { get game_path(another_game) }
 
         it { expect(response.status).not_to eq(200) }
         it { expect(response).to redirect_to(root_path) }
         it { expect(flash[:alert]).to be_truthy }
       end
     end
+  end
 
-    describe '#answer' do
+  describe '#answer' do
+    context 'when unregistered user' do
+      before do
+        put answer_game_path(game_w_questions), params: {
+          letter: game_w_questions.current_game_question.correct_answer_key
+        }
+      end
+
+      it 'does not change game level' do
+        expect { put answer_game_path(game_w_questions), params: {
+          letter: game_w_questions.current_game_question.correct_answer_key
+          }}.not_to change { game_w_questions.current_level }
+      end
+
+      it { expect(response.status).not_to eq(200) }
+      it { expect(response).to redirect_to(new_user_session_path) }
+      it { expect(flash[:alert]).to be_truthy }
+    end
+
+    context 'when registered user' do
+      before { sign_in user }
+
       context 'when answer is correct' do
         let(:game) { game = controller.view_assigns['game'] }
 
@@ -176,11 +137,27 @@ RSpec.describe "Games", type: :request do
         it { expect(flash[:alert]).to be_truthy }
       end
     end
+  end
 
-    describe '#take_money' do
+  describe '#take_money' do
+    context 'when unregistered user' do
+      before { put take_money_game_path(game_w_questions) }
+
+      it 'does not finish game' do
+        expect { put take_money_game_path(game_w_questions) }.
+          not_to change { game_w_questions.finished_at }
+      end
+
+      it { expect(response.status).not_to eq(200) }
+      it { expect(response).to redirect_to(new_user_session_path) }
+      it { expect(flash[:alert]).to be_truthy }
+    end
+
+    context 'when registered user' do
       let(:game) { game = controller.view_assigns['game'] }
 
       before do
+        sign_in user
         game_w_questions.update(current_level: 4)
         put take_money_game_path(game_w_questions)
       end
@@ -195,8 +172,27 @@ RSpec.describe "Games", type: :request do
         expect(user.balance).to eq(game.prize)
       end
     end
+  end
 
-    context 'when uses help' do
+  describe '#help' do
+    context 'when unregistered user' do
+      before { put help_game_path(game_w_questions) }
+
+      it 'does not change help status' do
+        expect { put help_game_path(game_w_questions) }.
+          to not_change { game_w_questions.fifty_fifty_used }.
+          and not_change { game_w_questions.audience_help_used }.
+          and not_change { game_w_questions.friend_call_used }
+      end
+
+      it { expect(response.status).not_to eq(200) }
+      it { expect(response).to redirect_to(new_user_session_path) }
+      it { expect(flash[:alert]).to be_truthy }
+    end
+
+    context 'when registered user' do
+      before { sign_in user }
+
       context 'when audience help' do
         context 'when not used' do
           it 'not exists in help hash' do
@@ -219,7 +215,7 @@ RSpec.describe "Games", type: :request do
           it { expect(game.finished?).to be_falsey }
           it { expect(game.audience_help_used).to be_truthy }
           it { expect(response).to redirect_to(game_path(game_w_questions)) }
-          
+
           it 'exists in help hash' do
             expect(game.current_game_question.help_hash[:audience_help]).
               to be_truthy
@@ -253,7 +249,7 @@ RSpec.describe "Games", type: :request do
           it { expect(game.finished?).to be_falsey }
           it { expect(game.fifty_fifty_used).to be_truthy }
           it { expect(response).to redirect_to(game_path(game_w_questions)) }
-          
+
           it 'exists in help hash' do
             expect(game.current_game_question.help_hash[:fifty_fifty]).
               to be_truthy
@@ -263,7 +259,7 @@ RSpec.describe "Games", type: :request do
             expect(game.current_game_question.help_hash[:fifty_fifty].size).
               to eq(2)
           end
-          
+
           it 'includes correct answer key' do
             expect(game.current_game_question.help_hash[:fifty_fifty]).
               to include(game.current_game_question.correct_answer_key)
@@ -292,7 +288,7 @@ RSpec.describe "Games", type: :request do
           it { expect(game.finished?).to be_falsey }
           it { expect(game.friend_call_used).to be_truthy }
           it { expect(response).to redirect_to(game_path(game_w_questions)) }
-          
+
           it 'exists in help hash' do
             expect(game.current_game_question.help_hash[:friend_call]).
               to be_truthy
