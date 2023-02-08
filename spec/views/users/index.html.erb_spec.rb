@@ -10,13 +10,19 @@ RSpec.describe "users/index", type: :view do
     render
   end
 
-  it 'renders player names' do
+  it 'renders first player name' do
     expect(rendered).to match('Dale')
+  end
+
+  it 'renders second player name' do
     expect(rendered).to match('Gordon')
   end
 
-  it 'renders player balances' do
+  it 'renders first player balance' do
     expect(rendered).to match('5 000 ₽')
+  end
+
+  it 'renders second player balance' do
     expect(rendered).to match('3 000 ₽')
   end
 

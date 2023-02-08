@@ -4,12 +4,14 @@ RSpec.describe "games/_help", type: :view do
   let(:game) { build_stubbed(:game) }
   let(:help_hash) { {friend_call: 'Сережа считает, что это вариант D'} }
 
-  it 'renders help variant' do
-    render_partial({}, game)
+  context 'when renders help variants' do
+    before do
+      render_partial({}, game)
+    end
 
-    expect(rendered).to match('50/50')
-    expect(rendered).to match('bi bi-telephone')
-    expect(rendered).to match('bi bi-people')
+    it { expect(rendered).to match('50/50') }
+    it { expect(rendered).to match('bi bi-telephone') }
+    it { expect(rendered).to match('bi bi-people') }
   end
 
   it 'renders help info text' do

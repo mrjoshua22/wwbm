@@ -6,7 +6,7 @@ RSpec.describe "Games", type: :request do
   let(:user) { create(:user) }
   let(:game_w_questions) { create(:game_with_questions, user: user) }
 
-  context 'Unregistered user' do
+  context 'when unregistered user' do
     describe '#create' do
       before(:context) do
         post games_path
@@ -15,7 +15,7 @@ RSpec.describe "Games", type: :request do
       it { expect { post games_path }.not_to change(Game,:count) }
       it { expect(response.status).not_to eq(200) }
       it { expect(response).to redirect_to(new_user_session_path) }
-      it { expect(flash[:alert]).to be }
+      it { expect(flash[:alert]).to be_truthy }
     end
 
     describe '#show' do
@@ -25,7 +25,7 @@ RSpec.describe "Games", type: :request do
 
       it { expect(response.status).not_to eq(200) }
       it { expect(response).to redirect_to(new_user_session_path) }
-      it { expect(flash[:alert]).to be }
+      it { expect(flash[:alert]).to be_truthy }
     end
 
     describe '#answer' do
@@ -43,7 +43,7 @@ RSpec.describe "Games", type: :request do
 
       it { expect(response.status).not_to eq(200) }
       it { expect(response).to redirect_to(new_user_session_path) }
-      it { expect(flash[:alert]).to be }
+      it { expect(flash[:alert]).to be_truthy }
     end
 
     describe '#take_money' do
@@ -58,7 +58,7 @@ RSpec.describe "Games", type: :request do
 
       it { expect(response.status).not_to eq(200) }
       it { expect(response).to redirect_to(new_user_session_path) }
-      it { expect(flash[:alert]).to be }
+      it { expect(flash[:alert]).to be_truthy }
     end
 
     describe '#help' do
@@ -75,11 +75,11 @@ RSpec.describe "Games", type: :request do
 
       it { expect(response.status).not_to eq(200) }
       it { expect(response).to redirect_to(new_user_session_path) }
-      it { expect(flash[:alert]).to be }
+      it { expect(flash[:alert]).to be_truthy }
     end
   end
 
-  context 'Registered user' do
+  context 'when registered user' do
     let(:admin) { create(:user, is_admin: true) }
     let(:another_game) { create(:game_with_questions) }
 
@@ -89,33 +89,36 @@ RSpec.describe "Games", type: :request do
 
     describe '#create' do
       context 'user has no unfinished game' do
-        it 'creates game' do
-          generate_questions(60)
+        context 'when creates game' do
+          let!(:questions) { generate_questions(15) }
+          let(:game) { controller.view_assigns['game'] }
 
-          post games_path
+          before do
+            post games_path
+          end
 
-          game = controller.view_assigns['game']
-
-          expect(game.finished?).to be_falsey
-          expect(game.user).to eq(user)
-
-          expect(response).to redirect_to(game_path(game))
-          expect(flash[:notice]).to be
+          it { expect(game.finished?).to be_falsey }
+          it { expect(game.user).to eq(user) }
+          it { expect(response).to redirect_to(game_path(game)) }
+          it { expect(flash[:notice]).to be_truthy }
         end
       end
 
       context 'user has unfinished game' do
-        it 'forbids to create game before finish another' do
-          expect(game_w_questions.finished?).to be_falsey
+        context 'when forbids to create game' do
+          let!(:questions) { generate_questions(15) }
+          let(:game) { game = controller.view_assigns['game'] }
 
-          expect { post games_path }.not_to change(Game,:count)
+          before do
+            game_w_questions.finished_at = nil
+            post games_path
+          end
 
-          game = controller.view_assigns['game']
-
-          expect(game).to be_nil
-          expect(response.status).not_to eq(200)
-          expect(response).to redirect_to(game_path(game_w_questions))
-          expect(flash[:alert]).to be
+          it { expect { post games_path }.not_to change(Game,:count) }
+          it { expect(game).to be_nil }
+          it { expect(response.status).not_to eq(200) }
+          it { expect(response).to redirect_to(game_path(game_w_questions)) }
+          it { expect(flash[:alert]).to be_truthy }
         end
       end
     end
@@ -140,7 +143,7 @@ RSpec.describe "Games", type: :request do
 
         it { expect(response.status).not_to eq(200) }
         it { expect(response).to redirect_to(root_path) }
-        it { expect(flash[:alert]).to be }
+        it { expect(flash[:alert]).to be_truthy }
       end
     end
 
@@ -170,7 +173,7 @@ RSpec.describe "Games", type: :request do
         it { expect(game.finished?).to be_truthy }
         it { expect(game.is_failed).to be_truthy }
         it { expect(response).to redirect_to(user_path(user)) }
-        it { expect(flash[:alert]).to be }
+        it { expect(flash[:alert]).to be_truthy }
       end
     end
 
@@ -185,7 +188,7 @@ RSpec.describe "Games", type: :request do
       it { expect(game.finished?).to be_truthy }
       it { expect(game.prize).to eq(500) }
       it { expect(response).to redirect_to(user_path(user)) }
-      it { expect(flash[:warning]).to be }
+      it { expect(flash[:warning]).to be_truthy }
 
       it 'adds correct sum tousers balance' do
         user.reload.balance
@@ -193,42 +196,109 @@ RSpec.describe "Games", type: :request do
       end
     end
 
-    it 'audience help' do
-      expect(game_w_questions.current_game_question.help_hash[:audience_help]).
-        not_to be
-      expect(game_w_questions.audience_help_used).to be_falsey
+    context 'when uses help' do
+      context 'when audience help' do
+        context 'when not used' do
+          it 'not exists in help hash' do
+            expect(game_w_questions.current_game_question.
+              help_hash[:audience_help]).
+              to be_falsey
+          end
 
-      put help_game_path(game_w_questions),
-        params: { help_type: :audience_help }
+          it { expect(game_w_questions.audience_help_used).to be_falsey }
+        end
 
-      game = controller.view_assigns['game']
+        context 'when used' do
+          let(:game) { game = controller.view_assigns['game'] }
 
-      expect(game.finished?).to be_falsey
-      expect(game.audience_help_used).to be_truthy
-      expect(game.current_game_question.help_hash[:audience_help]).to be
-      expect(game.current_game_question.help_hash[:audience_help].keys).
-        to contain_exactly('a', 'b', 'c', 'd')
-      expect(response).to redirect_to(game_path(game_w_questions))
-    end
+          before do
+            put help_game_path(game_w_questions),
+              params: { help_type: :audience_help }
+          end
 
-    it 'fifty fifty' do
-      expect(game_w_questions.current_game_question.help_hash[:fifty_fifty]).
-        not_to be
-      expect(game_w_questions.fifty_fifty_used).to be_falsey
+          it { expect(game.finished?).to be_falsey }
+          it { expect(game.audience_help_used).to be_truthy }
+          it { expect(response).to redirect_to(game_path(game_w_questions)) }
+          
+          it 'exists in help hash' do
+            expect(game.current_game_question.help_hash[:audience_help]).
+              to be_truthy
+          end
 
-      put help_game_path(game_w_questions),
-        params: { help_type: :fifty_fifty }
+          it 'contains correct set of keys' do
+            expect(game.current_game_question.help_hash[:audience_help].keys).
+              to contain_exactly('a', 'b', 'c', 'd')
+          end
+        end
+      end
 
-      game = controller.view_assigns['game']
+      context 'when fifty fifty' do
+        context 'when not used' do
+          it 'not exists in help hash' do
+            expect(game_w_questions.current_game_question.
+              help_hash[:fifty_fifty]).to be_falsey
+          end
 
-      expect(game.finished?).to be_falsey
-      expect(game.fifty_fifty_used).to be_truthy
-      expect(game.current_game_question.help_hash[:fifty_fifty]).to be
-      expect(game.current_game_question.help_hash[:fifty_fifty].size).
-        to eq(2)
-      expect(game.current_game_question.help_hash[:fifty_fifty]).
-       to include(game.current_game_question.correct_answer_key)
-      expect(response).to redirect_to(game_path(game_w_questions))
+          it { expect(game_w_questions.fifty_fifty_used).to be_falsey }
+        end
+
+        context 'when used' do
+          let(:game) { game = controller.view_assigns['game'] }
+
+          before do
+            put help_game_path(game_w_questions),
+              params: { help_type: :fifty_fifty }
+          end
+
+          it { expect(game.finished?).to be_falsey }
+          it { expect(game.fifty_fifty_used).to be_truthy }
+          it { expect(response).to redirect_to(game_path(game_w_questions)) }
+          
+          it 'exists in help hash' do
+            expect(game.current_game_question.help_hash[:fifty_fifty]).
+              to be_truthy
+          end
+
+          it 'contains correct number of keys' do
+            expect(game.current_game_question.help_hash[:fifty_fifty].size).
+              to eq(2)
+          end
+          
+          it 'includes correct answer key' do
+            expect(game.current_game_question.help_hash[:fifty_fifty]).
+              to include(game.current_game_question.correct_answer_key)
+          end
+        end
+      end
+
+      context 'when friend call' do
+        context 'when not used' do
+          it 'not exists in help hash' do
+            expect(game_w_questions.current_game_question.
+              help_hash[:friend_call]).to be_falsey
+          end
+
+          it { expect(game_w_questions.friend_call_used).to be_falsey }
+        end
+
+        context 'when used' do
+          let(:game) { game = controller.view_assigns['game'] }
+
+          before do
+            put help_game_path(game_w_questions),
+              params: { help_type: :friend_call }
+          end
+
+          it { expect(game.finished?).to be_falsey }
+          it { expect(game.friend_call_used).to be_truthy }
+          it { expect(response).to redirect_to(game_path(game_w_questions)) }
+          
+          it 'exists in help hash' do
+            expect(game.current_game_question.help_hash[:friend_call]).
+              to be_truthy
+          end
+        end
+      end
     end
   end
 end

@@ -148,21 +148,19 @@ RSpec.describe Game, type: :model do
     end
 
     context 'when answer is wrong' do
-      context 'finishes game' do
-        it 'not change game current level' do
+      it 'not change game current level' do
         expect { game.answer_current_question!('a')}.
           to_not change { game.current_level }
-        end
+      end
 
-        it  'finishes the game' do
-          game.answer_current_question!('a')
-          expect(game.finished?).to be_truthy
-        end
+      it  'finishes the game' do
+        game.answer_current_question!('a')
+        expect(game.finished?).to be_truthy
+      end
 
-        it 'finishes the game as failed' do
-          game.answer_current_question!('a')
-          expect(game.is_failed).to be_truthy
-        end
+      it 'finishes the game as failed' do
+        game.answer_current_question!('a')
+        expect(game.is_failed).to be_truthy
       end
     end
   end
