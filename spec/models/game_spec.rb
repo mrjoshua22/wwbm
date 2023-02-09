@@ -117,13 +117,23 @@ RSpec.describe Game, type: :model do
 
       it { expect(answer_question).to be_falsey }
       it { expect { answer_question }.to_not change { game.current_level } }
+      
+      it 'returns correct game status' do
+        answer_question
+
+        expect(game.status).to eq(:timeout)
+      end
     end
 
     context 'when game is finished' do
-      before { game.finished_at = 1.hour.ago }
+      before do
+        game.finished_at = 1.hour.ago
+        game.is_failed = false
+      end
 
       it { expect(answer_question).to be_falsey }
       it { expect { answer_question }.to_not change { game.current_level } }
+      it { expect(game.status).to eq(:money) }
     end
 
     context 'when answer is correct' do
@@ -138,6 +148,7 @@ RSpec.describe Game, type: :model do
         it { expect(game.finished?).to be_truthy }
         it { expect(game.is_failed).to be_falsey }
         it { expect(user.balance).to eq(1000000) }
+        it { expect(game.status).to eq(:won) }
       end
 
       context 'when not last question' do
@@ -149,23 +160,31 @@ RSpec.describe Game, type: :model do
         it { expect(game.current_level).to eq(6) }
         it { expect(game.finished?).to be_falsey }
         it { expect(game.is_failed).to be_falsey }
+        it { expect(game.status).to eq(:in_progress) }
       end
     end
 
     context 'when answer is wrong' do
+      let(:incorrect_answer) { game.answer_current_question!('a') }
+
       it 'not change game current level' do
-        expect { game.answer_current_question!('a')}.
-          to_not change { game.current_level }
+        expect { incorrect_answer }.to_not change { game.current_level }
       end
 
       it 'finishes the game' do
-        game.answer_current_question!('a')
+        incorrect_answer
         expect(game.finished?).to be_truthy
       end
 
       it 'finishes the game as failed' do
-        game.answer_current_question!('a')
+        incorrect_answer
         expect(game.is_failed).to be_truthy
+      end
+
+      it 'returns correct game status' do
+        incorrect_answer
+
+        expect(game.status).to eq(:fail)
       end
     end
   end
