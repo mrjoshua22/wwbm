@@ -7,7 +7,7 @@ RSpec.describe "users/show", type: :view do
 
   before do
     assign(:user, user)
-    assign(:games, [ double(prize: 32000), double(prize: 64000) ])
+    assign(:games, [double(prize: 32000), double(prize: 64000)])
     stub_template 'users/_game.html.erb' => '<%= game.prize %>'
     render
   end
